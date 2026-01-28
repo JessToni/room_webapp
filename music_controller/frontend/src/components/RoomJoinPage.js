@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { TextField,Button, Grid, Typography } from "@mui/material"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default class RoomJoinPage extends Component {
+class RoomJoinPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -53,6 +53,27 @@ export default class RoomJoinPage extends Component {
     }
 
     roomButtonPressed() {
-        console.log(this.state.roomCode)
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                code: this.state.roomCode
+            })
+        };
+        fetch('/api/join-room', requestOptions).then((response) => {
+            if (response.ok) {
+                this.props.navigate(`/room/${this.state.roomCode}`)
+            } else {
+                this.setState({error: 'Room not found.'})
+            }
+        }).catch((error) => {
+            console.log(error);
+        })
     }
 }
+
+export function withNavigation(Component) {
+    return (props) => <Component {...props} navigate={useNavigate()} />
+}
+
+export default withNavigation(RoomJoinPage);
